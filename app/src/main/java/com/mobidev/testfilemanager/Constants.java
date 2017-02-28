@@ -6,5 +6,6 @@ package com.mobidev.testfilemanager;
 
 public class Constants {
 
-    public static String TAG = "LOG_TAG";
+    public static final String TAG = "LOG_TAG";
+    public static final int REQUEST_READ_STORAGE_PERMISSION = 0;
 }

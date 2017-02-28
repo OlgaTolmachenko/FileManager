@@ -1,7 +1,9 @@
 package com.mobidev.testfilemanager;
 
+import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -13,10 +15,23 @@ import java.util.Stack;
  * Created by olga on 28.02.17.
  */
 
-public class FilesScreenModel {
+public class FilesModel {
     private File currentDir;
     private File previousDir;
     private Stack<File> filesHistory;
+    private static FilesModel instance;
+
+    private FilesModel() {
+        setupCurrentDir();
+        setupHistory();
+    }
+
+    public static FilesModel getInstance() {
+        if (instance == null) {
+            instance = new FilesModel();
+        }
+        return instance;
+    }
 
     private void setupCurrentDir() {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
@@ -24,6 +39,10 @@ public class FilesScreenModel {
         } else {
             Log.d(Constants.TAG, "setupCurrentDir: storage is READONLY");
         }
+    }
+
+    private void setupHistory() {
+        filesHistory = new Stack<>();
     }
 
     public File getCurrentDir() {
@@ -40,7 +59,7 @@ public class FilesScreenModel {
 
     public void setPreviousDir(File previousDir) {
         this.previousDir = previousDir;
-        filesHistory.add(previousDir);
+        filesHistory.push(previousDir);
     }
 
     public boolean hasPreviousDir() {
@@ -48,7 +67,7 @@ public class FilesScreenModel {
     }
 
     public List<File> getAllFilesInCurrDir(File file) {
-        File allFiles[] = file.listFiles();
+        File[] allFiles = file.listFiles();
 
         List<File> dirs = new ArrayList<>();
         List<File> files = new ArrayList<>();
@@ -68,4 +87,16 @@ public class FilesScreenModel {
 
         return dirs;
     }
+
+    public String getMimeType(Uri uri) {
+        String mimeType = null;
+        String extension = MimeTypeMap.getFileExtensionFromUrl(uri.getPath());
+
+        if (MimeTypeMap.getSingleton().hasExtension(extension)) {
+            mimeType = MimeTypeMap.getSingleton().getExtensionFromMimeType(extension);
+        }
+        return mimeType;
+    }
+
+
 }
