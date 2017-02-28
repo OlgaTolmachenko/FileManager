@@ -1,7 +1,7 @@
 package com.mobidev.testfilemanager;
 
 import android.app.Activity;
-import android.content.Context;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
@@ -10,9 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
-import java.util.List;
 
 /**
  * Created by olga on 28.02.17.
@@ -20,11 +20,9 @@ import java.util.List;
 
 public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHolder> {
 
-    List<File> filesList;
     private Activity context;
 
-    public FilesAdapter(List<File> filesList, Activity context) {
-        this.filesList = filesList;
+    public FilesAdapter(Activity context) {
         this.context = context;
     }
 
@@ -36,40 +34,56 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
 
     @Override
     public void onBindViewHolder(final FilesViewHolder holder, final int position) {
-        if (filesList.get(position).isDirectory()) {
+        if (FilesModel.getInstance().getFilesToShow().get(position).isDirectory()) {
             holder.fileLogo.setImageDrawable(holder.itemView.getContext().getDrawable(R.drawable.ic_folder_blue_24dp));
         } else {
             holder.fileLogo.setImageDrawable(holder.itemView.getContext().getDrawable(R.drawable.ic_subject_blue_24dp));
         }
-        holder.fileName.setText(filesList.get(position).getName());
+        holder.fileName.setText(FilesModel.getInstance().getFilesToShow().get(position).getName());
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                File selectedFile = filesList.get(position);
+                File selectedFile = FilesModel.getInstance().getFilesToShow().get(holder.getAdapterPosition());
 
                 if (selectedFile.isDirectory()) {
+                    context.setTitle(selectedFile.getName());
                     FilesModel.getInstance().setPreviousDir(FilesModel.getInstance().getCurrentDir());
                     FilesModel.getInstance().setCurrentDir(selectedFile);
-                    context.setTitle(selectedFile.getName());
-                    filesList.clear();
-                    filesList = FilesModel.getInstance().getAllFilesInCurrDir(selectedFile);
+                    FilesModel.getInstance().getFilesToShow().clear();
+                    FilesModel.getInstance().setFilesToShow(FilesModel.getInstance().getAllFilesInCurrDir(selectedFile));
                     notifyDataSetChanged();
                 } else {
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    Uri clickedFile = Uri.fromFile(filesList.get(position));
-                    intent.setDataAndType(clickedFile, FilesModel.getInstance().getMimeType(clickedFile));
-                    if (holder.itemView.getContext().getContentResolver() != null) {
-                        holder.itemView.getContext().startActivity(intent);
-                    }
+                    Uri clickedFile = Uri.fromFile(FilesModel.getInstance().getFilesToShow().get(holder.getAdapterPosition()));
+                    openFile(clickedFile);
                 }
             }
         });
     }
 
+    private void openFile(Uri fileUri) {
+
+        String mimeType = FilesModel.getInstance().getMimeType(fileUri);
+
+        if (mimeType != null) {
+            try {
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setDataAndType(fileUri, mimeType);
+                context.startActivity(i);
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(context, "The System understands this file type," +
+                                "but no applications are installed to handle it.",
+                        Toast.LENGTH_LONG).show();
+            }
+        } else {
+            Toast.makeText(context, "System doesn't know how to handle that file type!",
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
     @Override
     public int getItemCount() {
-        return filesList.size();
+        return FilesModel.getInstance().getFilesToShow().size();
     }
 
     public static class FilesViewHolder extends RecyclerView.ViewHolder {

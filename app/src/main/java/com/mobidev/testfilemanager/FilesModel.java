@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
+import static android.R.attr.mimeType;
+
 /**
  * Created by olga on 28.02.17.
  */
@@ -20,6 +22,7 @@ public class FilesModel {
     private File previousDir;
     private Stack<File> filesHistory;
     private static FilesModel instance;
+    private List<File> filesToShow;
 
     private FilesModel() {
         setupCurrentDir();
@@ -92,11 +95,17 @@ public class FilesModel {
         String mimeType = null;
         String extension = MimeTypeMap.getFileExtensionFromUrl(uri.getPath());
 
-        if (MimeTypeMap.getSingleton().hasExtension(extension)) {
-            mimeType = MimeTypeMap.getSingleton().getExtensionFromMimeType(extension);
+        if (extension != null) {
+            mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
         }
         return mimeType;
     }
 
+    public List<File> getFilesToShow() {
+        return filesToShow;
+    }
 
+    public void setFilesToShow(List<File> filesToShow) {
+        this.filesToShow = filesToShow;
+    }
 }

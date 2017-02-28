@@ -9,8 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
-import java.io.File;
-import java.util.List;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity
@@ -18,7 +16,6 @@ public class MainActivity extends AppCompatActivity
 {
 
 //    private AsyncTaskLoader<List<File>> fileLoader;
-    private List<File> files;
     private FilesAdapter filesAdapter;
 
     @Override
@@ -30,9 +27,10 @@ public class MainActivity extends AppCompatActivity
             requestDocumentsPermissions();
         }
 
-        files = FilesModel.getInstance().getAllFilesInCurrDir(FilesModel.getInstance().getCurrentDir());
+        FilesModel.getInstance().setFilesToShow(
+                FilesModel.getInstance().getAllFilesInCurrDir(FilesModel.getInstance().getCurrentDir()));
 
-        filesAdapter = new FilesAdapter(files, this);
+        filesAdapter = new FilesAdapter(this);
 
         RecyclerView filesRecycler = (RecyclerView) findViewById(R.id.fileRecycler);
         filesRecycler.setLayoutManager(new LinearLayoutManager(this));
@@ -47,12 +45,23 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
         if (FilesModel.getInstance().hasPreviousDir()) {
-            files.clear();
+            FilesModel.getInstance().getFilesToShow().clear();
             FilesModel.getInstance().setCurrentDir(FilesModel.getInstance().getPreviousDir());
-            files = FilesModel.getInstance().getAllFilesInCurrDir(FilesModel.getInstance().getCurrentDir());
+            FilesModel.getInstance().setFilesToShow(
+                    FilesModel.getInstance().getAllFilesInCurrDir(FilesModel.getInstance().getCurrentDir()));
             filesAdapter.notifyDataSetChanged();
+            setUpTitle();
+        } else {
+            super.onBackPressed();
         }
-//        super.onBackPressed();
+    }
+
+    private void setUpTitle() {
+        if (FilesModel.getInstance().hasPreviousDir()) {
+            setTitle(FilesModel.getInstance().getCurrentDir().getName());
+        } else {
+            setTitle(getPackageManager().getApplicationLabel(this.getApplicationInfo()));
+        }
     }
 
     //    @Override
@@ -86,7 +95,8 @@ public class MainActivity extends AppCompatActivity
                         && Objects.equals(permissions[0], android.Manifest.permission.READ_EXTERNAL_STORAGE)
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                    files = FilesModel.getInstance().getAllFilesInCurrDir(FilesModel.getInstance().getCurrentDir());
+                    FilesModel.getInstance().setFilesToShow(
+                            FilesModel.getInstance().getAllFilesInCurrDir(FilesModel.getInstance().getCurrentDir()));
                 }
             }
         }
