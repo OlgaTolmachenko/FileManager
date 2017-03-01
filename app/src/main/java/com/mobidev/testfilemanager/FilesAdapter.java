@@ -70,6 +70,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
     private void openFile(Uri fileUri) {
 
         String mimeType = FilesModel.getInstance().getMimeType(fileUri);
+<<<<<<< Updated upstream
         //TODO: Пустрые строки лучше проверять через TextUtils
         if (mimeType != null) {
             try {
@@ -81,9 +82,22 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
                 Toast.makeText(context, "The System understands this file type," +
                                        "but no applications are installed to handle it.",
                                Toast.LENGTH_LONG).show();
+=======
+        Intent i = new Intent(Intent.ACTION_VIEW);
+
+        try {
+            if (mimeType != null) {
+
+                    i.setDataAndType(fileUri, mimeType);
+
+            } else {
+                i.setType("*/*");
+>>>>>>> Stashed changes
             }
-        } else {
-            Toast.makeText(context, "System doesn't know how to handle that file type!",
+            context.startActivity(i);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(context, "The System understands this file type," +
+                                   "but no applications are installed to handle it.",
                            Toast.LENGTH_LONG).show();
         }
     }
