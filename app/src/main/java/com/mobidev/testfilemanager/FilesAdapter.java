@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,6 +50,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
                 if (selectedFile.isDirectory()) {
                     context.setTitle(selectedFile.getName());
                     FilesModel.getInstance().setPreviousDir(FilesModel.getInstance().getCurrentDir());
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent("LOL").putExtra("name", FilesModel.getInstance().getPreviousDirName()));
                     FilesModel.getInstance().setCurrentDir(selectedFile);
                     FilesModel.getInstance().getFilesToShow().clear();
                     FilesModel.getInstance().setFilesToShow(FilesModel.getInstance().getAllFilesInCurrDir(selectedFile));

@@ -22,6 +22,8 @@
         android:layout_height="wrap_content"
         android:text="@string/filenameTemplate"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-        android:paddingStart="@dimen/dimen_8dp"/>
+        android:paddingStart="@dimen/dimen_8dp"
+        android:maxLines="1"
+        android:ellipsize="end"/>
 
 </LinearLayout>

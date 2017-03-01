@@ -60,6 +60,15 @@ public class FilesModel {
         return filesHistory.pop();
     }
 
+    public String getPreviousDirName() {
+        String name = "";
+        if (hasPreviousDir()) {
+//            name = previousDir.getName();
+            name = filesHistory.peek().getName();
+        }
+        return name;
+    }
+
     public void setPreviousDir(File previousDir) {
         this.previousDir = previousDir;
         filesHistory.push(previousDir);

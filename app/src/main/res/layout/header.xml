@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.mobidev.testfilemanager.MainActivity"
-    android:orientation="vertical">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:id="@+id/backLayout"
@@ -29,16 +24,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/filenameTemplate"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-            android:paddingStart="@dimen/dimen_8dp"
-            android:maxLines="1"
-            android:ellipsize="end"/>
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+            android:paddingStart="@dimen/dimen_8dp"/>
 
     </LinearLayout>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/fileRecycler"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
 
 </LinearLayout>
