@@ -11,8 +11,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
-import static android.R.attr.mimeType;
-
 /**
  * Created by olga on 28.02.17.
  */
@@ -58,6 +56,14 @@ public class FilesModel {
 
     public File getPreviousDir() {
         return filesHistory.pop();
+    }
+
+    public String getPreviousDirName() {
+        String name = "";
+        if (hasPreviousDir()) {
+            name = filesHistory.peek().getName();
+        }
+        return name;
     }
 
     public void setPreviousDir(File previousDir) {

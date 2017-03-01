@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,6 +50,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
                 if (selectedFile.isDirectory()) {
                     context.setTitle(selectedFile.getName());
                     FilesModel.getInstance().setPreviousDir(FilesModel.getInstance().getCurrentDir());
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent("com.mobidev.testfilemanager.PREVDIRNAME").putExtra(Constants.PREV_NAME, FilesModel.getInstance().getPreviousDirName()));
                     FilesModel.getInstance().setCurrentDir(selectedFile);
                     FilesModel.getInstance().getFilesToShow().clear();
                     FilesModel.getInstance().setFilesToShow(FilesModel.getInstance().getAllFilesInCurrDir(selectedFile));
@@ -72,12 +74,12 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
                 context.startActivity(i);
             } catch (ActivityNotFoundException e) {
                 Toast.makeText(context, "The System understands this file type," +
-                                "but no applications are installed to handle it.",
-                        Toast.LENGTH_LONG).show();
+                                       "but no applications are installed to handle it.",
+                               Toast.LENGTH_LONG).show();
             }
         } else {
             Toast.makeText(context, "System doesn't know how to handle that file type!",
-                    Toast.LENGTH_LONG).show();
+                           Toast.LENGTH_LONG).show();
         }
     }
 
