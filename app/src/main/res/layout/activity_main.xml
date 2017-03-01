@@ -28,7 +28,7 @@
             android:id="@+id/prevDirName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/filenameTemplate"
+            android:text="/"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
             android:paddingStart="@dimen/dimen_8dp"
             android:maxLines="1"

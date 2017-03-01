@@ -42,10 +42,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             requestDocumentsPermissions();
+        } else {
+            FilesModel.getInstance().setFilesToShow(
+                    FilesModel.getInstance().getAllFilesInCurrDir(FilesModel.getInstance().getCurrentDir()));
         }
-
-        FilesModel.getInstance().setFilesToShow(
-                FilesModel.getInstance().getAllFilesInCurrDir(FilesModel.getInstance().getCurrentDir()));
 
         filesAdapter = new FilesAdapter(this);
 
@@ -56,11 +56,12 @@ public class MainActivity extends AppCompatActivity {
         filesRecycler.addItemDecoration(filesDivider);
 
         broadcastReceiver = new BroadcastReceiver() {
-
             @Override
             public void onReceive(Context context, Intent intent) {
-                String name = intent.getStringExtra(Constants.PREV_NAME) + "/";
-                setupPrevText(name);
+                if (intent.getAction() == "com.mobidev.testfilemanager.PREVDIRNAME") {
+                    String name = intent.getStringExtra(Constants.PREV_NAME) + "/";
+                    setupPrevText(name);
+                }
             }
         };
     }
@@ -73,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
             LocalBroadcastManager.getInstance(this)
                     .registerReceiver(
                             broadcastReceiver,
-                            new IntentFilter("LOL"));
+                            new IntentFilter("com.mobidev.testfilemanager.PREVDIRNAME"));
         }
     }
 
@@ -133,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
 
                     FilesModel.getInstance().setFilesToShow(
                             FilesModel.getInstance().getAllFilesInCurrDir(FilesModel.getInstance().getCurrentDir()));
+                    filesAdapter.notifyDataSetChanged();
                 }
             }
         }

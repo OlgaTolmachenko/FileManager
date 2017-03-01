@@ -50,8 +50,8 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
                 if (selectedFile.isDirectory()) {
                     context.setTitle(selectedFile.getName());
                     FilesModel.getInstance().setPreviousDir(FilesModel.getInstance().getCurrentDir());
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent("com.mobidev.testfilemanager.PREVDIRNAME").putExtra(Constants.PREV_NAME, FilesModel.getInstance().getPreviousDirName()));
                     FilesModel.getInstance().setCurrentDir(selectedFile);
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent("com.mobidev.testfilemanager.PREVDIRNAME").putExtra(Constants.PREV_NAME, FilesModel.getInstance().getPreviousDirName()));
                     FilesModel.getInstance().getFilesToShow().clear();
                     FilesModel.getInstance().setFilesToShow(FilesModel.getInstance().getAllFilesInCurrDir(selectedFile));
                     notifyDataSetChanged();
@@ -85,7 +85,11 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
 
     @Override
     public int getItemCount() {
-        return FilesModel.getInstance().getFilesToShow().size();
+        int size = 0;
+        if (FilesModel.getInstance().getFilesToShow() != null) {
+            size = FilesModel.getInstance().getFilesToShow().size();
+        }
+        return size;
     }
 
     public static class FilesViewHolder extends RecyclerView.ViewHolder {
