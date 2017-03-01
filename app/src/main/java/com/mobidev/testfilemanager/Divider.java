@@ -25,7 +25,6 @@ public class Divider extends RecyclerView.ItemDecoration {
         if (parent.getChildAdapterPosition(view) == 0) {
             return;
         }
-
         outRect.top = taskDivider.getIntrinsicHeight();
     }
 

@@ -58,6 +58,9 @@ public class MainActivity extends AppCompatActivity {
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                //TODO: экшен должен хранится в константе
+                //TODO:Строки не сравниваются через == Андрид студия тебе подсвечивает эту ошибку. почему игноришь?
+                //Это элементраные знания Java книгу так ине прочитала?
                 if (intent.getAction() == "com.mobidev.testfilemanager.PREVDIRNAME") {
                     String name = intent.getStringExtra(Constants.PREV_NAME) + "/";
                     setupPrevText(name);
@@ -107,6 +110,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupPrevText(String name) {
+        //TODO почему не "0".equals(FilesModel.getInstance().getPreviousDirName())?
+        //TODO почему логика определения корня не спрятанна в FilesModel?
         if (Objects.equals(FilesModel.getInstance().getPreviousDirName(), "0")
                 || Objects.equals(FilesModel.getInstance().getPreviousDirName(), "0/")) {
             prevDirName.setText("root/");

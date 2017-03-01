@@ -18,15 +18,17 @@ import java.util.Stack;
 public class FilesModel {
     private File currentDir;
     private File previousDir;
+    //TODO: ЗАЧЕМ??????
     private Stack<File> filesHistory;
     private static FilesModel instance;
+    //TODO: ЗАЧЕМ??????
     private List<File> filesToShow;
 
     private FilesModel() {
         setupCurrentDir();
         setupHistory();
     }
-
+    //TODO: ЗАЧЕМ??????
     public static FilesModel getInstance() {
         if (instance == null) {
             instance = new FilesModel();
@@ -76,8 +78,9 @@ public class FilesModel {
     }
 
     public List<File> getAllFilesInCurrDir(File file) {
-        File[] allFiles = file.listFiles();
 
+        File[] allFiles = file.listFiles();
+        //TODO: Тут нужно было написать свой компаратор тогда достаточно былобы одного прохода по массиву https://coderanch.com/t/378718/java/sort-array-files-directories
         List<File> dirs = new ArrayList<>();
         List<File> files = new ArrayList<>();
 
