@@ -24,6 +24,6 @@
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
         android:paddingStart="@dimen/dimen_8dp"
         android:maxLines="1"
-        android:ellipsize="end"/>
+        android:ellipsize="middle"/>
 
 </LinearLayout>
