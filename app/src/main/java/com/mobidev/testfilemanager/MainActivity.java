@@ -20,42 +20,50 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity {
+import java.io.File;
+import java.util.List;
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private FilesAdapter filesAdapter;
     private TextView prevDirName;
 
     private BroadcastReceiver broadcastReceiver;
     private FilesModel filesModel;
 
+    private List<File> files;
+
+    private RecyclerView filesRecycler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        LinearLayout backLayout = (LinearLayout) findViewById(R.id.backLayout);
-        backLayout.setOnClickListener(new View.OnClickListener() {
+        filesModel = new FilesModel();
+
+        checkAndRequestPermissions();
+        files = filesModel.getAllFiles(filesModel.getCurrentDir());
+
+        filesAdapter = new FilesAdapter(this, files, new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setupBackwardsNavigation();
+
             }
         });
 
-        prevDirName = (TextView) findViewById(R.id.prevDirName);
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            requestDocumentsPermissions();
-        } else {
-            FilesModel.getInstance().setFilesToShow(
-                    FilesModel.getInstance().getAllFilesInCurrDir(FilesModel.getInstance().getCurrentDir()));
-        }
-
-        filesAdapter = new FilesAdapter(this);
-
-        RecyclerView filesRecycler = (RecyclerView) findViewById(R.id.fileRecycler);
+        filesRecycler = (RecyclerView) findViewById(R.id.fileRecycler);
         filesRecycler.setLayoutManager(new LinearLayoutManager(this));
         filesRecycler.setAdapter(filesAdapter);
         RecyclerView.ItemDecoration filesDivider = new Divider(ContextCompat.getDrawable(this, R.drawable.list_divider));
         filesRecycler.addItemDecoration(filesDivider);
+
+        prevDirName = (TextView) findViewById(R.id.prevDirName);
+        LinearLayout backLayout = (LinearLayout) findViewById(R.id.backLayout);
+        backLayout.setOnClickListener(this);
+
+
+
+//        filesAdapter.notifyDataSetChanged();
 
         broadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -66,6 +74,12 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
+    }
+
+    private void checkAndRequestPermissions() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            requestDocumentsPermissions();
+        }
     }
 
     @Override
@@ -88,27 +102,31 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (!FilesModel.getInstance().hasPreviousDir()) {
+        if (!filesModel.hasPreviousDir() || filesModel.getPreviousDirName().equals("0")) {
             super.onBackPressed();
         }
         setupBackwardsNavigation();
     }
 
     private void setupBackwardsNavigation() {
-        if (FilesModel.getInstance().hasPreviousDir()) {
-            FilesModel.getInstance().setCurrentDir(FilesModel.getInstance().getPreviousDir());
-            FilesModel.getInstance().setFilesToShow(
-                    FilesModel.getInstance().getAllFilesInCurrDir(FilesModel.getInstance().getCurrentDir()));
-            filesAdapter.notifyDataSetChanged();
-        }
+        //TODO fix перепрыгивание через одну папку при шаге назад
+        files = filesModel.getAllFiles(filesModel.getCurrentDir().getParentFile());
+
+        filesAdapter = new FilesAdapter(this, files, new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        filesRecycler.setAdapter(filesAdapter);
+//        filesAdapter.notifyDataSetChanged();
         setUpTitle();
-        setupPrevText(FilesModel.getInstance().getPreviousDirName() + "/");
+        setupPrevText(filesModel.getPreviousDirName() + "/");
     }
 
     private void setupPrevText(String name) {
         //TODO почему логика определения корня не спрятанна в FilesModel?
-        if (FilesModel.getInstance().getPreviousDirName().equals("0")
-                || FilesModel.getInstance().getPreviousDirName().equals("0/")) {
+        if (filesModel.getPreviousDirName().equals("0")) {
             prevDirName.setText("root/");
         } else {
             prevDirName.setText(name);
@@ -116,8 +134,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setUpTitle() {
-        if (FilesModel.getInstance().hasPreviousDir()) {
-            setTitle(FilesModel.getInstance().getCurrentDir().getName());
+        if (filesModel.hasPreviousDir()) {
+            setTitle(filesModel.getCurrentDir().getName());
         } else {
             setTitle(getPackageManager().getApplicationLabel(this.getApplicationInfo()));
         }
@@ -133,8 +151,7 @@ public class MainActivity extends AppCompatActivity {
                         && permissions[0].equals(android.Manifest.permission.READ_EXTERNAL_STORAGE)
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                    FilesModel.getInstance().setFilesToShow(
-                            FilesModel.getInstance().getAllFilesInCurrDir(FilesModel.getInstance().getCurrentDir()));
+                    files = filesModel.getAllFiles(filesModel.getCurrentDir());
                     filesAdapter.notifyDataSetChanged();
                 }
             }
@@ -144,5 +161,14 @@ public class MainActivity extends AppCompatActivity {
     @TargetApi(Build.VERSION_CODES.KITKAT)
     private void requestDocumentsPermissions() {
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.MANAGE_DOCUMENTS}, Constants.REQUEST_READ_STORAGE_PERMISSION);
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.backLayout:
+                setupBackwardsNavigation();
+                break;
+        }
     }
 }

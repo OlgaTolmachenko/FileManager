@@ -16,6 +16,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by olga on 28.02.17.
@@ -24,9 +26,14 @@ import java.io.File;
 public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHolder> {
 
     private Activity context;
+    private FilesModel filesModel;
+    private List<File> files = new ArrayList<>();
 
-    public FilesAdapter(Activity context) {
+    public FilesAdapter(Activity context, List<File> files, View.OnClickListener listener) {
         this.context = context;
+        filesModel = new FilesModel();
+//        this.files = filesModel.getAllFiles(filesModel.getCurrentDir());
+        this.files = files;
     }
 
     @Override
@@ -38,20 +45,20 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
     @Override
     public void onBindViewHolder(final FilesViewHolder holder, final int position) {
         //TODO почему не разными типами и холдерами?
-        if (FilesModel.getInstance().getFilesToShow().get(position).isDirectory()) {
+        if (files.get(position).isDirectory()) {
             holder.fileLogo.setImageDrawable(ContextCompat.getDrawable(holder.itemView.getContext(), R.drawable.ic_folder_blue_24dp));
         } else {
             holder.fileLogo.setImageDrawable(ContextCompat.getDrawable(holder.itemView.getContext(), R.drawable.ic_subject_blue_24dp));
         }
-        holder.fileName.setText(FilesModel.getInstance().getFilesToShow().get(position).getName());
+        holder.fileName.setText(files.get(position).getName());
 
-        File selectedFile = FilesModel.getInstance().getFilesToShow().get(position);
+        File selectedFile = files.get(position);
         holder.setSelectedFile(selectedFile);
     }
 
     private void openFile(Uri fileUri) {
 
-        String mimeType = FilesModel.getInstance().getMimeType(fileUri);
+        String mimeType = filesModel.getMimeType(fileUri);
         if (TextUtils.isEmpty(mimeType)) {
             try {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -89,13 +96,13 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
     public int getItemCount() {
         int size = 0;
         //TODO: тут лучше бы сделать метод в FilesModel который бы возращал количество итемов и 0 если списокещёне существует
-        if (FilesModel.getInstance().getFilesToShow() != null) {
-            size = FilesModel.getInstance().getFilesToShow().size();
+        if (files != null) {
+            size = files.size();
         }
         return size;
     }
 
-    class FilesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class FilesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public ImageView fileLogo;
         public TextView fileName;
         private File selectedFile;
@@ -120,10 +127,9 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
             if (selectedFile.isDirectory()) {
                 context.setTitle(selectedFile.getName());
                 //TODO почему это не реализовано внутри FilesModel?
-                FilesModel.getInstance().setCurrentDir(selectedFile);
-                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(Constants.INTENT_ACTION).putExtra(Constants.PREV_NAME, FilesModel.getInstance().getPreviousDirName()));
+                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(Constants.INTENT_ACTION).putExtra(Constants.PREV_NAME, filesModel.getPreviousDirName()));
                 //TODO почему это не реализовано внутри FilesModel?
-                FilesModel.getInstance().setFilesToShow(FilesModel.getInstance().getAllFilesInCurrDir(selectedFile));
+                files = filesModel.getAllFiles(selectedFile);
                 notifyDataSetChanged();
             } else {
                 Uri selectedFileUri = Uri.fromFile(selectedFile);

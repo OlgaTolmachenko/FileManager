@@ -6,6 +6,7 @@ import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import java.io.File;
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,46 +14,30 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Stack;
 
+import static com.mobidev.testfilemanager.Constants.TAG;
+
 /**
  * Created by olga on 28.02.17.
  */
 
 public class FilesModel {
     private File currentDir;
-    //TODO: ЗАЧЕМ??????
-    private static FilesModel instance;
-    //TODO: ЗАЧЕМ??????
-    private List<File> filesToShow;
 
-    private FilesModel() {
+    public FilesModel() {
         setupCurrentDir();
     }
-    //TODO: ЗАЧЕМ??????
-    public static FilesModel getInstance() {
-        if (instance == null) {
-            instance = new FilesModel();
-        }
-        return instance;
-    }
+
 
     private void setupCurrentDir() {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             currentDir = Environment.getExternalStorageDirectory();
         } else {
-            Log.d(Constants.TAG, "setupCurrentDir: storage is READONLY");
+            Log.d(TAG, "setupCurrentDir: storage is READONLY");
         }
     }
 
     public File getCurrentDir() {
         return currentDir;
-    }
-
-    public void setCurrentDir(File currentDir) {
-        this.currentDir = currentDir;
-    }
-
-    public File getPreviousDir() {
-        return currentDir.getParentFile();
     }
 
     public String getPreviousDirName() {
@@ -67,7 +52,7 @@ public class FilesModel {
         return currentDir.getParentFile() != null;
     }
 
-    public List<File> getAllFilesInCurrDir(final File file) {
+    public List<File> getAllFiles(final File file) {
 
         final File[] allFiles = file.listFiles();
         Comparator comparator = new Comparator() {
@@ -87,6 +72,10 @@ public class FilesModel {
         };
 
         Arrays.sort(allFiles, comparator);
+
+        for(File currFile : allFiles) {
+            Log.d(Constants.TAG, "getAllFiles: " + currFile.getName());
+        }
         return Arrays.asList(allFiles);
     }
 
@@ -98,13 +87,5 @@ public class FilesModel {
             mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
         }
         return mimeType;
-    }
-
-    public List<File> getFilesToShow() {
-        return filesToShow;
-    }
-
-    public void setFilesToShow(List<File> filesToShow) {
-        this.filesToShow = filesToShow;
     }
 }
