@@ -2,7 +2,10 @@ package com.mobidev.testfilemanager;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,9 +14,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -25,11 +30,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView prevDirNameField;
     private FilesModel filesModel;
     private RecyclerView filesRecycler;
+    private boolean isPaused;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        isPaused = false;
 
         prevDirNameField = (TextView) findViewById(R.id.prevDirName);
 
@@ -49,8 +57,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        isPaused = true;
+    }
+
+    @Override
     public void onBackPressed() {
-        if (!filesModel.hasPreviousDir()) {
+        if (!filesModel.hasPreviousDir() && isPaused) {
             super.onBackPressed();
         }
         setupBackwardsNavigation();
@@ -67,9 +81,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Subscribe
     public void onEvent(MessageEvent fileSelectedEvent) {
-        String name = fileSelectedEvent.getSelectedFile().getName();
-        setUpTitle(name);
-        setupPrevText();
+        if (fileSelectedEvent.getSelectedFile().isDirectory()) {
+            String name = fileSelectedEvent.getSelectedFile().getName();
+            setUpTitle(name);
+            setupPrevText();
+        } else {
+            Uri selectedFileUri = Uri.fromFile(fileSelectedEvent.getSelectedFile());
+            openFile(selectedFileUri);
+        }
     }
 
     private void setupBackwardsNavigation() {
@@ -93,6 +112,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             setTitle(selectedDir);
         } else {
             setTitle(getPackageManager().getApplicationLabel(this.getApplicationInfo()));
+        }
+    }
+
+    private void openFile(Uri fileUri) {
+        String mimeType = filesModel.getMimeType(fileUri);
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+
+        if (TextUtils.isEmpty(mimeType)) {
+            intent.setType("*/*");
+        } else {
+            intent.setDataAndType(fileUri, mimeType);
+        }
+
+        try {
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, "No applications are installed to handle this action.", Toast.LENGTH_LONG).show();
         }
     }
 

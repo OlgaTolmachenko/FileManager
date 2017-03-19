@@ -56,42 +56,6 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
         holder.setSelectedFile(selectedFile);
     }
 
-    private void openFile(Uri fileUri) {
-
-        String mimeType = filesModel.getMimeType(fileUri);
-        if (TextUtils.isEmpty(mimeType)) {
-            try {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(fileUri, mimeType);
-                context.startActivity(intent);
-            } catch (ActivityNotFoundException e) {
-                Toast.makeText(context, "The System understands this file type," +
-                                "but no applications are installed to handle it.",
-                        Toast.LENGTH_LONG).show();
-
-
-//                Intent i = new Intent(Intent.ACTION_VIEW);
-
-//                try {
-//                    if (mimeType != null) {
-//
-//                        i.setDataAndType(fileUri, mimeType);
-//
-//                    } else {
-//                        i.setType("*/*");
-//                    }
-//                    context.startActivity(i);
-//                } catch (ActivityNotFoundException e) {
-//                    Toast.makeText(context, "The System understands this file type," +
-//                                    "but no applications are installed to handle it.",
-//                            Toast.LENGTH_LONG).show();
-//                }
-
-
-            }
-        }
-    }
-
     @Override
     public int getItemCount() {
         int size = 0;
@@ -127,11 +91,8 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
                 filesModel.setCurrentDir(selectedFile);
                 files = filesModel.getAllFiles(filesModel.getCurrentDir());
                 notifyDataSetChanged();
-                sendFileSelectedEvent();
-            } else {
-                Uri selectedFileUri = Uri.fromFile(selectedFile);
-                openFile(selectedFileUri);
             }
+            sendFileSelectedEvent();
         }
 
         private void sendFileSelectedEvent() {
