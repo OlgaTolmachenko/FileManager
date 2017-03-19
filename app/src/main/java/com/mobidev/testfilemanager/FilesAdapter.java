@@ -5,7 +5,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -15,8 +14,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,9 +27,9 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
 
     private Activity context;
     private FilesModel filesModel;
-    private List<File> files = new ArrayList<>();
+    private List<File> files;
 
-    public FilesAdapter(Activity context, List<File> files, View.OnClickListener listener) {
+    public FilesAdapter(Activity context, List<File> files) {
         this.context = context;
         filesModel = new FilesModel();
 //        this.files = filesModel.getAllFiles(filesModel.getCurrentDir());
@@ -95,7 +95,6 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
     @Override
     public int getItemCount() {
         int size = 0;
-        //TODO: тут лучше бы сделать метод в FilesModel который бы возращал количество итемов и 0 если списокещёне существует
         if (files != null) {
             size = files.size();
         }
@@ -125,16 +124,19 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
         @Override
         public void onClick(View view) {
             if (selectedFile.isDirectory()) {
-                context.setTitle(selectedFile.getName());
-                //TODO почему это не реализовано внутри FilesModel?
-                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(Constants.INTENT_ACTION).putExtra(Constants.PREV_NAME, filesModel.getPreviousDirName()));
-                //TODO почему это не реализовано внутри FilesModel?
                 files = filesModel.getAllFiles(selectedFile);
                 notifyDataSetChanged();
+                sendFileSelectedEvent();
             } else {
                 Uri selectedFileUri = Uri.fromFile(selectedFile);
                 openFile(selectedFileUri);
             }
+        }
+
+        private void sendFileSelectedEvent() {
+            FileSelectedEvent fileSelectedEvent = new FileSelectedEvent();
+            fileSelectedEvent.setSelectedFile(selectedFile);
+            EventBus.getDefault().post(fileSelectedEvent);
         }
     }
 }

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
@@ -21,7 +22,7 @@ import static com.mobidev.testfilemanager.Constants.TAG;
  */
 
 public class FilesModel {
-    private File currentDir;
+    private static File currentDir;
 
     public FilesModel() {
         setupCurrentDir();
@@ -36,8 +37,18 @@ public class FilesModel {
         }
     }
 
-    public File getCurrentDir() {
+    public static File getCurrentDir() {
+        System.out.println("currentDir: " + currentDir);
         return currentDir;
+    }
+
+    public static void setCurrentDir(File currDir) {
+        currentDir = currDir;
+    }
+
+    public File getPreviousDir() {
+        System.out.println("Prev Dir: " + currentDir.getParentFile());
+        return currentDir.getParentFile();
     }
 
     public String getPreviousDirName() {
@@ -52,7 +63,7 @@ public class FilesModel {
         return currentDir.getParentFile() != null;
     }
 
-    public List<File> getAllFiles(final File file) {
+    public LinkedList<File> getAllFiles(final File file) {
 
         final File[] allFiles = file.listFiles();
         Comparator comparator = new Comparator() {
@@ -76,7 +87,7 @@ public class FilesModel {
         for(File currFile : allFiles) {
             Log.d(Constants.TAG, "getAllFiles: " + currFile.getName());
         }
-        return Arrays.asList(allFiles);
+        return new LinkedList<>(Arrays.asList(allFiles));
     }
 
     public String getMimeType(Uri uri) {
