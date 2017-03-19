@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
+import static android.R.attr.name;
 import static com.mobidev.testfilemanager.Constants.TAG;
 
 /**
@@ -22,12 +23,12 @@ import static com.mobidev.testfilemanager.Constants.TAG;
  */
 
 public class FilesModel {
-    private static File currentDir;
+
+    private File currentDir;
 
     public FilesModel() {
         setupCurrentDir();
     }
-
 
     private void setupCurrentDir() {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
@@ -37,24 +38,27 @@ public class FilesModel {
         }
     }
 
-    public static File getCurrentDir() {
+    public File getCurrentDir() {
         System.out.println("currentDir: " + currentDir);
         return currentDir;
     }
 
-    public static void setCurrentDir(File currDir) {
+    public void setCurrentDir(File currDir) {
         currentDir = currDir;
     }
 
     public File getPreviousDir() {
-        System.out.println("Prev Dir: " + currentDir.getParentFile());
         return currentDir.getParentFile();
     }
 
+    public String getCurrDirName() {
+        return currentDir.getName();
+    }
+
     public String getPreviousDirName() {
-        String name = "";
+        String name = "/";
         if (hasPreviousDir()) {
-            name = currentDir.getParentFile().getName();
+            name = currentDir.getParentFile().getName() + "/";
         }
         return name;
     }

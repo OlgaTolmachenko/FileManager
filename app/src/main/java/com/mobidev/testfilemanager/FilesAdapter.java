@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.File;
 import java.util.List;
@@ -29,11 +30,10 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
     private FilesModel filesModel;
     private List<File> files;
 
-    public FilesAdapter(Activity context, List<File> files) {
+    public FilesAdapter(Activity context, List<File> files, FilesModel filesModel) {
         this.context = context;
-        filesModel = new FilesModel();
-//        this.files = filesModel.getAllFiles(filesModel.getCurrentDir());
         this.files = files;
+        this.filesModel = filesModel;
     }
 
     @Override
@@ -124,7 +124,8 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
         @Override
         public void onClick(View view) {
             if (selectedFile.isDirectory()) {
-                files = filesModel.getAllFiles(selectedFile);
+                filesModel.setCurrentDir(selectedFile);
+                files = filesModel.getAllFiles(filesModel.getCurrentDir());
                 notifyDataSetChanged();
                 sendFileSelectedEvent();
             } else {
@@ -134,7 +135,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
         }
 
         private void sendFileSelectedEvent() {
-            FileSelectedEvent fileSelectedEvent = new FileSelectedEvent();
+            MessageEvent fileSelectedEvent = new MessageEvent();
             fileSelectedEvent.setSelectedFile(selectedFile);
             EventBus.getDefault().post(fileSelectedEvent);
         }
