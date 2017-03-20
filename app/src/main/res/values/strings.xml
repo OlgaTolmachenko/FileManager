@@ -2,4 +2,5 @@
     <string name="app_name">TestFileManager</string>
     <string name="filenameTemplate">Filename</string>
     <string name="empty_directory">Empty directory</string>
+    <string name="no_app_match">No applications are installed to handle this action.</string>
 </resources>

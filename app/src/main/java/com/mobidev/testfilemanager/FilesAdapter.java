@@ -3,7 +3,10 @@ package com.mobidev.testfilemanager;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -26,12 +29,10 @@ import java.util.List;
 
 public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHolder> {
 
-    private Activity context;
     private FilesModel filesModel;
     private List<File> files;
 
-    public FilesAdapter(Activity context, List<File> files, FilesModel filesModel) {
-        this.context = context;
+    public FilesAdapter(List<File> files, FilesModel filesModel) {
         this.files = files;
         this.filesModel = filesModel;
     }
@@ -44,7 +45,6 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
 
     @Override
     public void onBindViewHolder(final FilesViewHolder holder, final int position) {
-        //TODO почему не разными типами и холдерами?
         if (files.get(position).isDirectory()) {
             holder.fileLogo.setImageDrawable(ContextCompat.getDrawable(holder.itemView.getContext(), R.drawable.ic_folder_blue_24dp));
         } else {

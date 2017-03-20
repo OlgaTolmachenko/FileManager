@@ -6,16 +6,10 @@ import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import java.io.File;
-import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Stack;
 
-import static android.R.attr.name;
 import static com.mobidev.testfilemanager.Constants.TAG;
 
 /**
@@ -39,7 +33,6 @@ public class FilesModel {
     }
 
     public File getCurrentDir() {
-        System.out.println("currentDir: " + currentDir);
         return currentDir;
     }
 
@@ -67,9 +60,14 @@ public class FilesModel {
         return currentDir.getParentFile() != null;
     }
 
-    public LinkedList<File> getAllFiles(final File file) {
+    public ArrayList<File> getAllFiles(final File file) {
 
         final File[] allFiles = file.listFiles();
+
+        if (allFiles == null) {
+            return new ArrayList<>();
+        }
+
         Comparator comparator = new Comparator() {
             @Override
             public int compare(Object obj1, Object obj2) {
@@ -88,10 +86,7 @@ public class FilesModel {
 
         Arrays.sort(allFiles, comparator);
 
-        for(File currFile : allFiles) {
-            Log.d(Constants.TAG, "getAllFiles: " + currFile.getName());
-        }
-        return new LinkedList<>(Arrays.asList(allFiles));
+        return new ArrayList<>(Arrays.asList(allFiles));
     }
 
     public String getMimeType(Uri uri) {

@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onBackPressed() {
-        if (!filesModel.hasPreviousDir() && isPaused) {
+        if (!filesModel.hasPreviousDir() || isPaused) {
             super.onBackPressed();
         }
         setupBackwardsNavigation();
@@ -74,7 +74,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.backLayout:
-                setupBackwardsNavigation();
+                if (filesModel.hasPreviousDir()) {
+                    setupBackwardsNavigation();
+                }
                 break;
         }
     }
@@ -92,7 +94,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setupBackwardsNavigation() {
-        //TODO понять, почему после первого же бэка директория сбрасывается на корневую
         setUpTitle(filesModel.getCurrDirName());
         setupPrevText();
 
@@ -129,13 +130,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         try {
             startActivity(intent);
         } catch (ActivityNotFoundException e) {
-            Toast.makeText(this, "No applications are installed to handle this action.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.no_app_match, Toast.LENGTH_LONG).show();
         }
     }
 
     private void setUpAdapter() {
         List<File> files = getFilesInCurrDir();
-        filesRecycler.setAdapter(new FilesAdapter(this, files, filesModel));
+        filesRecycler.setAdapter(new FilesAdapter(files, filesModel));
     }
 
     private List<File> getFilesInCurrDir() {
