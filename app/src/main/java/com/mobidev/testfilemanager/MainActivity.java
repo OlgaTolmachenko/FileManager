@@ -5,17 +5,22 @@ import android.annotation.TargetApi;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,9 +29,15 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
+import static android.R.attr.breadCrumbShortTitle;
+import static android.R.attr.mimeType;
+import static android.R.attr.switchMinWidth;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+
     private TextView prevDirNameField;
     private FilesModel filesModel;
     private RecyclerView filesRecycler;
@@ -88,7 +99,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             setUpTitle(name);
             setupPrevText();
         } else {
-            Uri selectedFileUri = Uri.fromFile(fileSelectedEvent.getSelectedFile());
+            Uri selectedFileUri;
+            if(Build.VERSION.SDK_INT == 24){
+                selectedFileUri = FileProvider.getUriForFile(
+                        MainActivity.this,
+                        "com.mobidev.testfilemanager",
+                        fileSelectedEvent.getSelectedFile());
+            } else{
+                selectedFileUri = Uri.fromFile(fileSelectedEvent.getSelectedFile());
+            }
             openFile(selectedFileUri);
         }
     }
@@ -119,16 +138,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void openFile(Uri fileUri) {
         String mimeType = filesModel.getMimeType(fileUri);
 
-        Intent intent = new Intent(Intent.ACTION_VIEW);
+        Intent openFileIntent = new Intent(Intent.ACTION_VIEW);
 
-        if (TextUtils.isEmpty(mimeType)) {
-            intent.setType("*/*");
-        } else {
-            intent.setDataAndType(fileUri, mimeType);
+        switch (mimeType) {
+            case ".mp3":
+                openFileIntent.setDataAndType(fileUri, "audio/mp3");
+                break;
+            default:
+                openFileIntent.setDataAndType(fileUri, mimeType);
         }
 
+        openFileIntent.addFlags(
+                Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+//        if (TextUtils.isEmpty(mimeType)) {
+//            openFileIntent.setType("*/*");
+//        } else {
+//            openFileIntent.setDataAndType(fileUri, mimeType);
+//        }
+
         try {
-            startActivity(intent);
+            startActivity(openFileIntent);
         } catch (ActivityNotFoundException e) {
             Toast.makeText(this, R.string.no_app_match, Toast.LENGTH_LONG).show();
         }

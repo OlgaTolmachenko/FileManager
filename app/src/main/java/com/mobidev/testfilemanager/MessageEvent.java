@@ -7,6 +7,7 @@ import java.io.File;
  */
 
 public class MessageEvent {
+
     private File selectedFile;
 
     public File getSelectedFile() {

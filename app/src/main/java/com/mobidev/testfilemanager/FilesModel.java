@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import static android.webkit.MimeTypeMap.getFileExtensionFromUrl;
 import static com.mobidev.testfilemanager.Constants.TAG;
 
 /**
@@ -90,12 +91,14 @@ public class FilesModel {
     }
 
     public String getMimeType(Uri uri) {
-        String mimeType = null;
         String extension = MimeTypeMap.getFileExtensionFromUrl(uri.getPath());
 
-        if (extension != null) {
-            mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+        if (extension.equals("")) {
+            String mp3 = ".mp3";
+            if (uri.toString().contains(mp3)) {
+                return mp3;
+            }
         }
-        return mimeType;
+        return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
     }
 }
